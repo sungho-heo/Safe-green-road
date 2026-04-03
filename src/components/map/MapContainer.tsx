@@ -1,15 +1,15 @@
 "use client";
-"use client";
 import { useState } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
+import { useTrafficData } from "@/hooks/useTrafficData";
 import BusSidebar from "./BusSidebar"; // 경로 확인 필수!
 import { BusLocation } from "@/types/bus";
 
 const MapContainer = () => {
   const { buses } = useBusData();
+  const { signals } = useTrafficData(); // 신호등 데이터 가져오기
 
-  // 2. 선택된 버스 상태 (초기값 null)
   const [selectedBus, setSelectedBus] = useState<BusLocation | null>(null);
 
   const defaultCenter = { lat: 35.062, lng: 126.5235 };
@@ -31,6 +31,24 @@ const MapContainer = () => {
             onClick={() => {
               console.log("마커 클릭됨:", bus.rteNo); // 콘솔확인
               setSelectedBus(bus);
+            }}
+          />
+        ))}
+        {/* 🚦 신호등 마커 추가 */}
+        {signals.map((signal) => (
+          <MapMarker
+            key={signal.crsrdId}
+            position={{
+              lat: Number(signal.mapCtptIntLat),
+              lng: Number(signal.mapCtptIntLot),
+            }}
+            image={{
+              // 예: 북쪽 보행자 신호(ntPdsgSttsNm)가 '초록'이면 초록색 아이콘
+              src:
+                signal.ntPdsgSttsNm === "초록"
+                  ? "/images/green-light.png"
+                  : "/images/red-light.png",
+              size: { width: 30, height: 30 },
             }}
           />
         ))}

@@ -1,6 +1,30 @@
 {
   "pages": {
-    "/_app": []
+    "/_app": [
+      "static/chunks/0mro_next_dist_compiled_05~6atl._.js",
+      "static/chunks/0mro_next_dist_shared_lib_0oegill._.js",
+      "static/chunks/0mro_next_dist_client_0vpm0je._.js",
+      "static/chunks/0mro_next_dist_0zfgibj._.js",
+      "static/chunks/0mro_next_app_0-u149_.js",
+      "static/chunks/[next]_entry_page-loader_ts_13q110m._.js",
+      "static/chunks/0mro_react-dom_0_2id7z._.js",
+      "static/chunks/0mro_0vpxhxu._.js",
+      "static/chunks/[root-of-the-server]__0lyuy14._.js",
+      "static/chunks/Safe-green-road_pages__app_07xvfw~._.js",
+      "static/chunks/turbopack-Safe-green-road_pages__app_11n9oo2._.js"
+    ],
+    "/_error": [
+      "static/chunks/0mro_next_dist_compiled_05~6atl._.js",
+      "static/chunks/0mro_next_dist_shared_lib_0n8s2-9._.js",
+      "static/chunks/0mro_next_dist_client_0vpm0je._.js",
+      "static/chunks/0mro_next_dist_113ej5s._.js",
+      "static/chunks/[next]_entry_page-loader_ts_04_f.cb._.js",
+      "static/chunks/0mro_react-dom_0_2id7z._.js",
+      "static/chunks/0mro_0vpxhxu._.js",
+      "static/chunks/[root-of-the-server]__10c35-8._.js",
+      "static/chunks/Safe-green-road_pages__error_07xvfw~._.js",
+      "static/chunks/turbopack-Safe-green-road_pages__error_0jvtlj2._.js"
+    ]
   },
   "devFiles": [],
   "polyfillFiles": [],

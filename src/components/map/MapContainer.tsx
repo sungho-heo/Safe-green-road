@@ -1,51 +1,46 @@
 "use client";
-
-import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
+"use client";
+import { useState } from "react";
+import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
+import BusSidebar from "./BusSidebar"; // 경로 확인 필수!
+import { BusLocation } from "@/types/bus";
 
 const MapContainer = () => {
   const { buses } = useBusData();
 
-  // 1. 초기 테스트 좌표를 함평군 데이터 중심으로 변경 (그래야 바로 보입니다)
+  // 2. 선택된 버스 상태 (초기값 null)
+  const [selectedBus, setSelectedBus] = useState<BusLocation | null>(null);
+
   const defaultCenter = { lat: 35.062, lng: 126.5235 };
 
   return (
-    <div className="w-full h-screen relative">
+    // 부모 div에 relative와 h-screen이 있어야 사이드바가 지도 위에 얹힙니다.
+    <div className="relative w-full h-screen overflow-hidden">
       <Map
         center={defaultCenter}
         style={{ width: "100%", height: "100%" }}
-        level={6} // 넓게 보기위해 6줌. 기본 확대 숫자.
+        level={6}
       >
-        {buses.map((bus) => {
-          const lat = Number(bus.lat);
-          const lng = Number(bus.lot);
-
-          if (isNaN(lat) || isNaN(lng)) return null;
-
-          // 2.section
-          return (
-            <section key={bus.vhclNo}>
-              {/* (1) 버스 아이콘 마커 */}
-              <MapMarker
-                position={{ lat, lng }}
-                image={{
-                  src: "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
-                  size: { width: 30, height: 35 },
-                }}
-              />
-
-              {/* (2) 버스 번호 텍스트 커스텀 오버레이 */}
-              <CustomOverlayMap position={{ lat, lng }} yAnchor={2.2}>
-                <div className="px-2 py-1 bg-white rounded-full shadow-md border-2 border-green-500 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-green-700 whitespace-nowrap">
-                    {bus.rteNo}번
-                  </span>
-                </div>
-              </CustomOverlayMap>
-            </section>
-          );
-        })}
+        {buses.map((bus) => (
+          <MapMarker
+            key={bus.vhclNo}
+            position={{ lat: Number(bus.lat), lng: Number(bus.lot) }}
+            clickable={true}
+            // 3. 마커 클릭 시 상태 업데이트
+            onClick={() => {
+              console.log("마커 클릭됨:", bus.rteNo); // 콘솔확인
+              setSelectedBus(bus);
+            }}
+          />
+        ))}
       </Map>
+
+      {/* 4. 사이드바 컴포넌트 (지도와 형제 관계) */}
+      {/* selectedBus가 null이 아닐 때만 나타납니다 */}
+      {selectedBus && (
+        <BusSidebar bus={selectedBus} onClose={() => setSelectedBus(null)} />
+      )}
 
       {/* 실시간 상태 표시바 */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">

@@ -15,7 +15,7 @@ export default function RootLayout({
   const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.PUBLIC_KAKAO_MAP_API_KEY}&autoload=false`;
   return (
     <html lang="en">
-      <body>
+      <body cz-shortcut-listen="true">
         {children}
         {/* strategy="beforeInteractive"를 사용하여 지도가 로드되기 전 엔진을 준비합니다. */}
         <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />

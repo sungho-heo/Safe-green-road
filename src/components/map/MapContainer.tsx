@@ -1,13 +1,12 @@
 "use client";
 
-// 1. CustomOverlayMap 임포트 추가
 import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
 
 const MapContainer = () => {
   const { buses } = useBusData();
 
-  // 2. 초기 테스트 좌표를 함평군 데이터 중심으로 변경 (그래야 바로 보입니다)
+  // 1. 초기 테스트 좌표를 함평군 데이터 중심으로 변경 (그래야 바로 보입니다)
   const defaultCenter = { lat: 35.062, lng: 126.5235 };
 
   return (
@@ -15,7 +14,7 @@ const MapContainer = () => {
       <Map
         center={defaultCenter}
         style={{ width: "100%", height: "100%" }}
-        level={6} // 처음에는 조금 넓게(6 정도) 보는 것이 좋습니다
+        level={6} // 넓게 보기위해 6줌. 기본 확대 숫자.
       >
         {buses.map((bus) => {
           const lat = Number(bus.lat);
@@ -23,10 +22,10 @@ const MapContainer = () => {
 
           if (isNaN(lat) || isNaN(lng)) return null;
 
-          // 3. <div> 대신 <React.Fragment> 혹은 <></> 사용
+          // 2.section
           return (
             <section key={bus.vhclNo}>
-              {/* 1. 버스 아이콘 마커 */}
+              {/* (1) 버스 아이콘 마커 */}
               <MapMarker
                 position={{ lat, lng }}
                 image={{
@@ -35,7 +34,7 @@ const MapContainer = () => {
                 }}
               />
 
-              {/* 2. 버스 번호 텍스트 커스텀 오버레이 */}
+              {/* (2) 버스 번호 텍스트 커스텀 오버레이 */}
               <CustomOverlayMap position={{ lat, lng }} yAnchor={2.2}>
                 <div className="px-2 py-1 bg-white rounded-full shadow-md border-2 border-green-500 flex items-center justify-center">
                   <span className="text-[10px] font-bold text-green-700 whitespace-nowrap">

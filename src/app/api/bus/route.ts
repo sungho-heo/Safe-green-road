@@ -9,10 +9,9 @@ export async function GET() {
     const response = await axios.get(url, {
       params: {
         serviceKey: SERVICE_KEY,
-        pageNo: 1,
-        numOfRows: 10,
+        numOfRows: 50,
         type: "JSON",
-        stdgCd: "4686000000", // 💡 함평군 법정동코드
+        stdgCd: "1100000000",
       },
       timeout: 5000,
     });

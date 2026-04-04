@@ -3,71 +3,87 @@ import { useState } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
 import { useTrafficData } from "@/hooks/useTrafficData";
-import BusSidebar from "./BusSidebar"; // 경로 확인 필수!
+import BusSidebar from "./BusSidebar";
 import { BusLocation } from "@/types/bus";
 
 const MapContainer = () => {
   const { buses } = useBusData();
-  const { signals } = useTrafficData(); // 신호등 데이터 가져오기
+  const { signals } = useTrafficData();
 
   const [selectedBus, setSelectedBus] = useState<BusLocation | null>(null);
 
-  const defaultCenter = { lat: 35.062, lng: 126.5235 };
+  // 💡 서울 중심 좌표 (서울시청 인근)
+  const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
 
   return (
-    // 부모 div에 relative와 h-screen이 있어야 사이드바가 지도 위에 얹힙니다.
     <div className="relative w-full h-screen overflow-hidden">
       <Map
-        center={defaultCenter}
+        center={SEOUL_CENTER} // 서울 중심으로 변경
         style={{ width: "100%", height: "100%" }}
-        level={6}
+        level={4} // 서울은 데이터 밀도가 높으므로 level을 조금 낮춰서(확대해서) 봅니다.
       >
+        {/* 🚌 버스 마커 */}
         {buses.map((bus) => (
           <MapMarker
-            key={bus.vhclNo}
+            key={`${bus.vhclNo}-${bus.rteNo}`}
             position={{ lat: Number(bus.lat), lng: Number(bus.lot) }}
             clickable={true}
-            // 3. 마커 클릭 시 상태 업데이트
-            onClick={() => {
-              console.log("마커 클릭됨:", bus.rteNo); // 콘솔확인
-              setSelectedBus(bus);
+            onClick={() => setSelectedBus(bus)}
+            image={{
+              src: "https://cdn-icons-png.flaticon.com/512/3448/3448339.png", // 버스 전용 아이콘 추천
+              size: { width: 40, height: 40 },
             }}
           />
         ))}
-        {/* 🚦 신호등 마커 추가 */}
+
+        {/* 🚦 신호등 마커 (서울 데이터) */}
         {signals.map((signal) => (
           <MapMarker
-            key={signal.crsrdId}
+            key={`signal-${signal.crsrdId}`}
             position={{
-              lat: Number(signal.mapCtptIntLat),
-              lng: Number(signal.mapCtptIntLot),
+              lat: signal.lat,
+              lng: signal.lng,
             }}
             image={{
-              // 예: 북쪽 보행자 신호(ntPdsgSttsNm)가 '초록'이면 초록색 아이콘
               src:
+                // 실제 API 응답 필드명인 ntPdsgSttsNm 하나만 쓰셔도 무방합니다.
                 signal.ntPdsgSttsNm === "초록"
-                  ? "/images/green-light.png"
-                  : "/images/red-light.png",
+                  ? "https://cdn-icons-png.flaticon.com/512/7133/7133331.png"
+                  : "https://cdn-icons-png.flaticon.com/512/7133/7133364.png",
               size: { width: 30, height: 30 },
             }}
           />
         ))}
       </Map>
 
-      {/* 4. 사이드바 컴포넌트 (지도와 형제 관계) */}
-      {/* selectedBus가 null이 아닐 때만 나타납니다 */}
+      {/* 4. 사이드바 컴포넌트 */}
       {selectedBus && (
         <BusSidebar bus={selectedBus} onClose={() => setSelectedBus(null)} />
       )}
 
-      {/* 실시간 상태 표시바 */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-        <p className="text-white text-xs font-medium flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-ping"></span>
-          실시간{" "}
-          {buses.length > 0
-            ? `저상버스 ${buses.length}대 운행 중`
-            : "데이터를 불러오는 중..."}
+      {/* 실시간 상태 표시바 (상단/하단 오버레이) */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+        <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 border-r border-white/20 pr-4">
+              <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+              <p className="text-white text-sm font-bold">
+                버스 {buses.length}대
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              <p className="text-white text-sm font-bold">
+                신호등 {signals.length}개
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+        <p className="text-white/50 text-[10px] tracking-widest uppercase">
+          Seoul Real-time Infrastructure Monitoring
         </p>
       </div>
     </div>

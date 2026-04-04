@@ -3,16 +3,21 @@ import { publicApi } from "@/lib/api";
 
 export async function GET() {
   try {
-    const url = "/B551982/rti/tl_drct_info";
-    const response = await publicApi.get(url, {
+    const res = await publicApi.get("/B551982/rti/tl_drct_info", {
       params: {
-        stdgCd: "4686000000", // 함평군 법정동 코드
-        numOfRows: 50, // 신호등은 개수가 많으므로 넉넉히 호출
+        stdgCd: "1100000000", // 💡 서울특별시 코드로 변경
+        numOfRows: 50,
+        type: "json",
       },
     });
-    return NextResponse.json(response.data);
+
+    const items = res.data?.body?.items?.item || [];
+    const result = Array.isArray(items) ? items : items ? [items] : [];
+
+    console.log("🚦 서울 신호 상태 로드:", result.length, "건");
+    return NextResponse.json(result);
   } catch (error: any) {
-    console.error("Traffic API Error:", error.message);
-    return NextResponse.json({ error: "신호등 호출 실패" }, { status: 500 });
+    console.error("🚨 Status API Error:", error.message);
+    return NextResponse.json([]);
   }
 }

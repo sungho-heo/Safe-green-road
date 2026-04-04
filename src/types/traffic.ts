@@ -27,6 +27,11 @@ export interface TrafficSignal {
   // 필요한 경우 직진신호(Stsg)나 다른 방향(ne, nw 등)을 추가합니다.
 }
 
+export interface MergedTrafficSignal extends TrafficSignal {
+  lat: number | null;
+  lng: number | null;
+}
+
 export interface TrafficApiResponse {
   body: {
     items: {

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
@@ -25,14 +26,16 @@ const MapContainer = () => {
         {/* 🚌 버스 마커 */}
         {buses.map((bus) => (
           <MapMarker
-            key={`${bus.vhclNo}-${bus.rteNo}`}
-            position={{ lat: Number(bus.lat), lng: Number(bus.lot) }}
-            clickable={true}
-            onClick={() => setSelectedBus(bus)}
+            key={bus.id}
+            position={{ lat: bus.lat, lng: bus.lng }}
             image={{
-              src: "https://cdn-icons-png.flaticon.com/512/3448/3448339.png", // 버스 전용 아이콘 추천
-              size: { width: 40, height: 40 },
+              // 저상버스(isLowBus)인 경우 휠체어 아이콘이나 파란색 마커 사용
+              src: bus.isLowBus
+                ? "https://cdn-icons-png.flaticon.com/512/10329/10329892.png" // 저상버스(휠체어) 아이콘 예시
+                : "https://cdn-icons-png.flaticon.com/512/3448/3448339.png",
+              size: { width: 35, height: 35 },
             }}
+            onClick={() => setSelectedBus(bus)}
           />
         ))}
 

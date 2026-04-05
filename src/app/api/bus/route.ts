@@ -3,29 +3,41 @@ import axios from "axios";
 
 export async function GET() {
   try {
-    const SERVICE_KEY = process.env.DATA_API_KEY; // 디코딩된 키 권장
-    const url = `https://apis.data.go.kr/B551982/rte/rtm_loc_info`;
+    const SERVICE_KEY = process.env.DATA_API_KEY;
+
+    const busRouteId = "100100112";
+    const url = "https://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid";
 
     const response = await axios.get(url, {
       params: {
         serviceKey: SERVICE_KEY,
-        numOfRows: 50,
-        type: "JSON",
-        stdgCd: "1100000000",
+        busRouteId: busRouteId,
+        resultType: "json",
       },
       timeout: 5000,
     });
+    const items = response.data?.msgBody?.itemList || [];
 
-    // 서버 터미널 확인용
-    console.log("Bus Data Fetch Success!");
+    // 단일객체로 오는 데이터일경우 대비해서 배열화
+    const itemList = Array.isArray(items) ? items : [items];
 
-    // 주신 API 구조는 response 없이 바로 items가 최상위에 있을 가능성이 높습니다.
-    return NextResponse.json(response.data);
+    // 매핑
+    const formattedBuses = itemList.map((bus: any) => ({
+      id: bus.vehId,
+      vhclNo: bus.plainNo,
+      // 서울 API는 tmX, tmY가 좌표입니다.
+      lat: Number(bus.tmY),
+      lng: Number(bus.tmX),
+      // 노인 안심 서비스 핵심 데이터
+      isLowBus: bus.busType === "1",
+      congetion: bus.congetion || "3", // 3:여유, 4:보통, 5:혼잡...
+      stopFlag: bus.stopFlag === "1", // 1:도착, 0:운행중
+    }));
+
+    console.log(`🚌 서울 버스 데이터 수신: ${formattedBuses.length}대`);
+    return NextResponse.json(formattedBuses);
   } catch (error: any) {
-    console.error("🚨 API Route Error:", error.response?.data || error.message);
-    return NextResponse.json(
-      { error: "데이터 로드 실패", detail: error.message },
-      { status: 500 },
-    );
+    console.error("🚨 서울 버스 API 호출 실패:", error.message);
+    return NextResponse.json([], { status: 500 });
   }
 }

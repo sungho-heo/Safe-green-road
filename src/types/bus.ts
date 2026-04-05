@@ -1,26 +1,21 @@
-// src/types/bus.ts
-export interface BusLocation {
-  stdgCd: string; // 법정동코드
-  lclgvNm: string; // 지역명 (전라남도 함평군)
-  rteId: string; // 노선 ID
-  vhclNo: string; // 차량 번호 (251016)
-  gthrDt: string; // 수집 일시
-  rteNo: string; // 노선 번호 (100)
-  lat: string; // 위도 (문자열로 들어옴)
-  lot: string; // 경도 (문자열로 들어옴)
-  oprDrct: string; // 운행 방향
-  oprSpd: string; // 운행 속도
-  evtType: string; // 이벤트 타입 (GPS)
-  totDt: string; // 전체 일시
+export interface SeoulBusRaw {
+  vehId: string; // 버스 ID
+  plainNo: string; // 차량번호 (예: 서울70사1234)
+  busType: string; // 차량유형 (0:일반, 1:저상)
+  tmX: string; // 맵매칭 X좌표 (경도)
+  tmY: string; // 맵매칭 Y좌표 (위도)
+  posX: string; // 맵매칭 X좌표
+  posY: string; // 맵매칭 Y좌표
+  stopFlag: string; // 정류소 도착 여부 (1:도착, 0:운행중)
+  congetion: string; // 혼잡도 (3:여유, 4:보통, 5:혼잡...)
+  dataTm: string; // 제공시간
 }
 
-export interface BusApiResponse {
-  // 보통 공공데이터는 response > body > items > item 구조를 가집니다.
-  // 만약 전체 응답 구조가 "items": { "item": [...] } 라면 아래와 같이 잡습니다.
-  body: {
-    items: {
-      item: BusLocation[];
-    };
-  };
-  totalCount: number;
+export interface BusLocation {
+  id: string;
+  vhclNo: string;
+  lat: number;
+  lng: number;
+  isLowBus: boolean; // 저상버스 여부 (노인 안심 핵심!)
+  congetionLevel: string; // 혼잡도 텍스트
 }

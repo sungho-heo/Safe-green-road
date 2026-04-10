@@ -20,23 +20,33 @@ export async function GET() {
       timeout: 5000,
     });
 
-    // 💡 3. 데이터 구조 로깅 (터미널에서 확인용)
-    // console.log("Full Data:", JSON.stringify(response.data));
-
-    // 서울 버스 API의 JSON 구조: response.msgBody.itemList
     const items = response.data?.msgBody?.itemList || [];
     const itemList = Array.isArray(items) ? items : items ? [items] : [];
 
     const formattedBuses = itemList.map((bus: any) => ({
       id: bus.vehId,
       vhclNo: bus.plainNo,
-      // 💡 좌표값 확인: 서울 API는 tmX, tmY를 사용합니다.
-      lat: Number(bus.tmY),
-      lng: Number(bus.tmX),
-      // 💡 노인 서비스 핵심 데이터: busType '1'이 저상버스
-      isLowBus: bus.busType === "1",
-      congestion: bus.congetion || "3", // 오타 수정: congetion -> congestion
-      stopFlag: bus.stopFlag === "1",
+      // 💡 데이터 확인 결과: tmX/tmY는 null이므로 gpsX/gpsY를 사용합니다.
+      lat: Number(bus.gpsY), // 37.558386...
+      lng: Number(bus.gpsX), // 126.927964...
+
+      // 💡 노인 안심 서비스 핵심 데이터
+      isLowBus: bus.busType === "1", // 저상버스 여부
+
+      // 💡 혼잡도: 데이터에 'congetion'으로 오타가 나있으므로 그대로 가져와서 변환
+      congestion:
+        bus.congetion === "3"
+          ? "여유"
+          : bus.congetion === "4"
+            ? "보통"
+            : "혼잡",
+
+      // 💡 다음 정류장 정보 (가공)
+      stopFlag: bus.stopFlag === "1", // 1: 정류소 도착, 0: 운행중
+
+      // 💡 추가 데이터: 다음 정류장까지 남은 시간(초 -> 분 변환)
+      nextStTm: Math.floor(Number(bus.nextStTm) / 60) || 0,
+      nextStId: bus.nextStId,
     }));
 
     console.log(`🚌 서울 버스 데이터 수신: ${formattedBuses.length}대`);

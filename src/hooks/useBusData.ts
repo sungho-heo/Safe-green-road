@@ -1,39 +1,40 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { SeoulBusRaw } from "@/types/bus";
 
 export const useBusData = () => {
   const [buses, setBuses] = useState<SeoulBusRaw[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const isInitialFetch = useRef(true); // 첫 로딩인지 확인용
 
   const fetchBuses = useCallback(async () => {
     try {
       const res = await axios.get("/api/bus");
-      setBuses(res.data);
+
+      // 💡 데이터가 정상적으로 있을 때만 업데이트 (안정성)
+      if (res.data && Array.isArray(res.data)) {
+        setBuses(res.data);
+      }
     } catch (err) {
+      // 에러 발생시 에러 콘솔에서 확인.
       console.error("Bus Fetch Error:", err);
+    } finally {
+      if (isInitialFetch.current) {
+        setLoading(false);
+        isInitialFetch.current = false;
+      }
     }
   }, []);
 
   useEffect(() => {
+    // 1. 즉시 실행
     fetchBuses();
-    const timer = setInterval(fetchBuses, 10000); // 10초마다 갱신
+
+    // 2. 10초마다 갱신 (서울 버스 API는 갱신 주기가 느려 15~20초도 적당합니다)
+    const timer = setInterval(fetchBuses, 15000);
+
     return () => clearInterval(timer);
   }, [fetchBuses]);
 
-  // 임시데이터
-  // const [buses] = useState([
-  //   {
-  //     id: "bus-101",
-  //     vhclNo: "서울70사1234",
-  //     routeNm: "143번",
-  //     lat: 37.5665, // 서울시청 인근
-  //     lng: 126.978,
-  //     isLowBus: true, // 저상버스 여부 (핵심!)
-  //     predictTime: 5, // 5분 후 도착 (가상 데이터)
-  //     remainStops: 2, // 2정거장 전 (가상 데이터)
-  //     congestion: "여유", // 혼잡도
-  //   },
-  // ]);
-
-  return { buses };
+  return { buses, loading }; // 로딩 상태를 추가해서 화면 처리를 돕습니다.
 };

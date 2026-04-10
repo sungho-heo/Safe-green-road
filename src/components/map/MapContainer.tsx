@@ -6,6 +6,7 @@ import { useBusData } from "@/hooks/useBusData";
 import { useDisabledData } from "@/hooks/useDisabledData";
 import BusSidebar from "./BusSidebar";
 import CenterSidebar from "@/components/CenterSidebar";
+import SearchBox from "@/components/SearchBox";
 
 const MapContainer = () => {
   const { buses, loading: busLoading } = useBusData();
@@ -17,6 +18,28 @@ const MapContainer = () => {
   const [selectedBus, setSelectedBus] = useState<any | null>(null);
   const [selectedCenter, setSelectedCenter] = useState<any | null>(null);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
+
+  // 검색
+  const handleSearch = (keyword: string) => {
+    if (!map) return;
+    const place = new kakao.maps.services.Places();
+
+    place.keywordSearch(keyword, (data, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        // 검색된 장소 중 첫 번째 장소로 중심 이동
+        const firstResult = data[0];
+        const bounds = new kakao.maps.LatLngBounds();
+
+        bounds.extend(
+          new kakao.maps.LatLng(Number(firstResult.y), Number(firstResult.x)),
+        );
+        map.setBounds(bounds);
+        map.setLevel(3); // 검색 시 좀 더 가깝게 확대
+      } else {
+        alert("검색 결과가 없습니다.");
+      }
+    });
+  };
 
   const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 }; // 서울시청
 
@@ -74,7 +97,8 @@ const MapContainer = () => {
       </Map>
 
       {/* 🛠️ 좌측 상단: 서비스 타이틀 및 레이어 필터 */}
-      <div className="absolute left-6 top-6 z-30 flex flex-col gap-3">
+      <div className="absolute left-6 top-6 z-30 flex flex-col gap-4 w-80">
+        {/* 1. 서비스 타이틀 영역 */}
         <div className="bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl shadow-xl border border-white/50">
           <h1 className="text-2xl font-black text-gray-900 tracking-tighter">
             노인 안심 <span className="text-blue-600">이동 경로</span>
@@ -84,23 +108,28 @@ const MapContainer = () => {
           </p>
         </div>
 
-        {/* 필터 버튼들 */}
-        <div className="flex flex-col gap-2 w-48">
+        {/* 2. 장소 검색창 */}
+        <div className="shadow-xl">
+          <SearchBox onSearch={handleSearch} />
+        </div>
+
+        {/* 3. 필터 버튼 영역 */}
+        <div className="flex flex-row gap-2">
+          {/* 가로로 배치해서 공간 절약 */}
           <button
             onClick={() => setShowBuses(!showBuses)}
-            className={`flex items-center justify-between px-5 py-3 rounded-2xl shadow-lg transition-all border-2 ${showBuses ? "bg-blue-600 border-blue-400 text-white" : "bg-white border-gray-100 text-gray-400"}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl shadow-lg transition-all border-2 ${showBuses ? "bg-blue-600 border-blue-400 text-white" : "bg-white border-gray-100 text-gray-400"}`}
           >
-            <span className="font-black text-sm">실시간 버스</span>
+            <span className="font-black text-sm">버스</span>
             <div
               className={`w-2 h-2 rounded-full ${showBuses ? "bg-white animate-pulse" : "bg-gray-300"}`}
             />
           </button>
-
           <button
             onClick={() => setShowCenters(!showCenters)}
-            className={`flex items-center justify-between px-5 py-3 rounded-2xl shadow-lg transition-all border-2 ${showCenters ? "bg-purple-600 border-purple-400 text-white" : "bg-white border-gray-100 text-gray-400"}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl shadow-lg transition-all border-2 ${showCenters ? "bg-purple-600 border-purple-400 text-white" : "bg-white border-gray-100 text-gray-400"}`}
           >
-            <span className="font-black text-sm">지원 센터</span>
+            <span className="font-black text-sm">센터</span>
             <div
               className={`w-2 h-2 rounded-full ${showCenters ? "bg-white animate-pulse" : "bg-gray-300"}`}
             />

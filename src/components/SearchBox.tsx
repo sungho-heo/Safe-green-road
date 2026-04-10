@@ -14,19 +14,20 @@ const SearchBox = ({ onSearch }: SearchBoxProps) => {
     // 들어오는 데이터 띄워쓰기 방지.
     if (text.trim()) onSearch(text);
   };
+
   return (
-    <div className="absolute left-6 top-40 z-30 w-72">
-      <form onSubmit={handleSubmit} className="realtive group">
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="relative group">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="목적지를 입력해주세요."
-          className="w-full py-4 px-6 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-transparent focus:border-blue-500 outline-none text-lg font-bold transition-all placeholder:text-gray-400"
+          placeholder="목적지 검색."
+          className="w-full py-4 px-6 bg-white/95 backdrop-blur-md rounded-2xl shadow-md border-2 border-transparent focus:border-blue-500 outline-none text-lg font-bold transition-all placeholder:text-gray-400"
         />
         <button
           type="submit"
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl"
         >
           <svg
             className="w-5 h-5"

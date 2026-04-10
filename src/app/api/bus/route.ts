@@ -3,12 +3,8 @@ import axios from "axios";
 
 export async function GET() {
   try {
-    // 💡 1. 서비스키 확인: .env에 있는 키가 이미 인코딩된 상태라면
-    // axios의 자동 인코딩을 피하기 위해 직접 URL을 구성하는 게 안전할 수 있습니다.
     const SERVICE_KEY = process.env.DATA_API_KEY;
     const busRouteId = "100100112";
-    // getBusPosByRouteSt
-    // 💡 2. URL 직접 구성 (인증키 깨짐 방지)
     const url = "http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid";
 
     const response = await axios.get(url, {

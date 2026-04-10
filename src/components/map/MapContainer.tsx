@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, Polyline } from "react-kakao-maps-sdk";
 import { useBusData } from "@/hooks/useBusData";
 import { useDisabledData } from "@/hooks/useDisabledData";
 import BusSidebar from "./BusSidebar";
 import CenterSidebar from "@/components/CenterSidebar";
 import SearchBox from "@/components/SearchBox";
+import { useBusPath } from "@/hooks/useBusPath"; // 방금 만든 훅
 
 const MapContainer = () => {
+  // hook data
   const { buses, loading: busLoading } = useBusData();
   const { centers } = useDisabledData();
+  const { path } = useBusPath();
 
   const [showBuses, setShowBuses] = useState(true);
   const [showCenters, setShowCenters] = useState(true);
@@ -59,6 +62,17 @@ const MapContainer = () => {
         level={4}
         onCreate={setMap}
       >
+        {/* 🚌 노선 경로 선 그리기 */}
+        {showBuses && path.length > 0 && (
+          <Polyline
+            path={[path]} // 중첩 배열 형태 [ [{lat, lng}, {lat, lng}] ]
+            strokeWeight={6} // 선 두께 (어르신용이니 도톰하게!)
+            strokeColor={"#2563eb"} // 파란색 (버스 테마)
+            strokeOpacity={0.6} // 너무 진하면 지도가 안 보이니 살짝 투명하게
+            strokeStyle={"solid"}
+          />
+        )}
+
         {/* 🚌 실시간 저상버스 마커 */}
         {showBuses &&
           buses.map((bus) => (

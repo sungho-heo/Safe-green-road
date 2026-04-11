@@ -7,13 +7,12 @@ import { useDisabledData } from "@/hooks/useDisabledData";
 import BusSidebar from "./BusSidebar";
 import CenterSidebar from "@/components/CenterSidebar";
 import SearchBox from "@/components/SearchBox";
-import { useBusPath } from "@/hooks/useBusPath"; // 방금 만든 훅
+import { useBusPath } from "@/hooks/useBusPath";
 
 const MapContainer = () => {
   // hook data
   const { buses, loading: busLoading } = useBusData();
   const { centers } = useDisabledData();
-  const { path } = useBusPath();
 
   const [showBuses, setShowBuses] = useState(true);
   const [showCenters, setShowCenters] = useState(true);
@@ -22,6 +21,8 @@ const MapContainer = () => {
   const [selectedCenter, setSelectedCenter] = useState<any | null>(null);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
+  // 선택한 버스만 노선이 보이게 설정.
+  const { path } = useBusPath(selectedBus?.routeId || selectedBus?.busRouteId);
   // 검색
   const handleSearch = (keyword: string) => {
     if (!map) return;
@@ -62,14 +63,14 @@ const MapContainer = () => {
         level={4}
         onCreate={setMap}
       >
-        {/* 🚌 노선 경로 선 그리기 */}
-        {showBuses && path.length > 0 && (
+        {/* 1. 노선 경로 (선) - 마커보다 먼저 선언하여 아래에 깔리게 함 */}
+        {selectedBus && path.length > 0 && (
           <Polyline
-            path={[path]} // 중첩 배열 형태 [ [{lat, lng}, {lat, lng}] ]
-            strokeWeight={6} // 선 두께 (어르신용이니 도톰하게!)
-            strokeColor={"#2563eb"} // 파란색 (버스 테마)
-            strokeOpacity={0.6} // 너무 진하면 지도가 안 보이니 살짝 투명하게
-            strokeStyle={"solid"}
+            path={path}
+            strokeWeight={6}
+            strokeColor={"#2563eb"}
+            strokeOpacity={0.7}
+            zIndex={1}
           />
         )}
 

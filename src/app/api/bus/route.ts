@@ -22,34 +22,22 @@ export async function GET() {
     const formattedBuses = itemList.map((bus: any) => ({
       id: bus.vehId,
       vhclNo: bus.plainNo,
-      // 💡 데이터 확인 결과: tmX/tmY는 null이므로 gpsX/gpsY를 사용합니다.
-      lat: Number(bus.gpsY), // 37.558386...
-      lng: Number(bus.gpsX), // 126.927964...
-
-      // 💡 노인 안심 서비스 핵심 데이터
-      isLowBus: bus.busType === "1", // 저상버스 여부
-
-      // 💡 혼잡도: 데이터에 'congetion'으로 오타가 나있으므로 그대로 가져와서 변환
+      busRouteId: busRouteId,
+      lat: Number(bus.gpsY),
+      lng: Number(bus.gpsX),
+      isLowBus: bus.busType === "1",
       congestion:
         bus.congetion === "3"
           ? "여유"
           : bus.congetion === "4"
             ? "보통"
             : "혼잡",
-
-      // 💡 다음 정류장 정보 (가공)
-      stopFlag: bus.stopFlag === "1", // 1: 정류소 도착, 0: 운행중
-
-      // 💡 추가 데이터: 다음 정류장까지 남은 시간(초 -> 분 변환)
+      stopFlag: bus.stopFlag === "1",
       nextStTm: Math.floor(Number(bus.nextStTm) / 60) || 0,
-      nextStId: bus.nextStId,
     }));
 
-    console.log(`🚌 서울 버스 데이터 수신: ${formattedBuses.length}대`);
     return NextResponse.json(formattedBuses);
-  } catch (error: any) {
-    console.error("🚨 서울 버스 API 호출 실패:", error.message);
-    // 에러 발생 시에도 빈 배열을 주어 프론트가 죽지 않게 함
+  } catch (error: unknown) {
     return NextResponse.json([]);
   }
 }
